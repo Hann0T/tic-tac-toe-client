@@ -1,7 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-typedef enum GameStatus { STARTED, STOPPED, ENDED } game_status_t;
-game_status_t init_game_status();
+#include "menu.h"
+
+typedef enum GameStatus { RUNNING, CLOSED, STOPPED } game_status_t;
+
+void process_move();
 
 #endif
