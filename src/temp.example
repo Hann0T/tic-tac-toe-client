@@ -1,0 +1,137 @@
+#include <curses.h>
+#include <locale.h>
+
+void printing() {
+  addstr("This was printed using addstr\n\n");
+  refresh();
+
+  addstr("The following letter was printed using addch:- ");
+  addch('a');
+  refresh();
+
+  printw("\n\nThese numbers were printed using printw\n%d\n%f\n", 123, 456.789);
+  refresh();
+}
+
+void moving_and_sleeping() {
+  int row = 5;
+  int col = 0;
+
+  // hide cursor
+  curs_set(0);
+
+  for (char c = 65; c <= 90; c++) {
+    move(row++, col++);
+    addch(c);
+    refresh();
+    napms(100);
+  }
+
+  row = 5;
+  col = 3;
+
+  for (char c = 97; c <= 122; c++) {
+    // move and addch
+    mvaddch(row++, col++, c);
+    refresh();
+    napms(100);
+  }
+
+  // show cursor
+  curs_set(1);
+
+  addch('\n');
+}
+
+void colouring() {
+  if (!has_colors()) {
+    addstr("Not colour capable\n");
+    refresh();
+    return;
+  }
+  if (start_color() != OK) {
+    addstr("Cannot start colours\n");
+    refresh();
+    return;
+  }
+
+  init_pair(1, COLOR_YELLOW, COLOR_RED);
+  init_pair(2, COLOR_GREEN, COLOR_GREEN);
+  init_pair(3, COLOR_MAGENTA, COLOR_CYAN);
+
+  attrset(COLOR_PAIR(1));
+  addstr("Yellow and red\n\n");
+  refresh();
+  attroff(COLOR_PAIR(1));
+
+  attrset(COLOR_PAIR(2) | A_BOLD);
+  addstr("Green and green A_BOLD\n\n");
+  refresh();
+  attroff(COLOR_PAIR(2));
+  attroff(A_BOLD);
+
+  attrset(COLOR_PAIR(3));
+  addstr("Magenta and cyan\n");
+  refresh();
+  attroff(COLOR_PAIR(3));
+}
+
+int main() {
+  char *locale = setlocale(LC_ALL, "en_US.UTF-8");
+  // should be first?
+  // newterm();
+
+  initscr();
+  raw(); // prevent ctrl C or ctrl Z, the characters are passed to the program
+         // and don't send the signal to the os
+
+  addstr("-------------------------------\n"
+         "\t| tic tac toe |\n"
+         "-------------------------------\n\n");
+  refresh();
+
+  // printing();
+  // moving_and_sleeping();
+
+  colouring();
+
+  addstr("\npress any key to exit...");
+  refresh();
+
+  getch();
+
+  endwin();
+  return 0;
+}
+
+int main() {
+  char *locale = setlocale(LC_ALL, "en_US.UTF-8");
+  int ch;
+
+  initscr();            /* Start curses mode            */
+  raw();                /* Line buffering disabled      */
+  keypad(stdscr, TRUE); /* We get F1, F2 etc..          */
+  noecho();             /* Don't echo() while we do getch */
+
+  printw("Type any character to see it in bold\n");
+  ch = getch();               /* If raw() hadn't been called
+                               * we have to press enter before it
+                               * gets to the program          */
+
+  if (ch == KEY_F(1))         /* Without keypad enabled this will */
+    printw("F1 Key pressed"); /*  not get to us either       */
+                              /* Without noecho() some ugly escape
+                               * characters might have been printed
+                               * on screen                    */
+  else {
+    printw("The pressed key is ");
+    attron(A_BOLD);
+    printw("%c", ch);
+    attroff(A_BOLD);
+  }
+  refresh(); /* Print it on to the real screen */
+  getch();   /* Wait for user input */
+  endwin();  /* End curses mode                */
+
+  return 0;
+}
