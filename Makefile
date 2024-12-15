@@ -10,7 +10,7 @@ clean:
 	rm -f bin/*
 
 $(TARGET): $(OBJ)
-	gcc -o $@ $? -lncurses
+	gcc -o $@ $(OBJ) -lncurses
 
 obj/%.o: src/%.c
 	gcc -c $< -o $@ -Iinclude
